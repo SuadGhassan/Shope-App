@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/app/screens/cart.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/const/my_icons.dart';
+import 'package:shop_app/models/Product.dart';
 import 'package:shop_app/models/feeds_products.dart';
 import 'package:shop_app/provider/dart_theme_provider.dart';
+import 'package:shop_app/provider/products.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({Key? key}) : super(key: key);
@@ -18,6 +20,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final themeState = Provider.of<DarkThemeProvider>(context);
+    final productData = Provider.of<Products>(context);
+    final _productId = ModalRoute.of(context)!.settings.arguments as String;
+    print ("productId: $_productId");
+    final productDetails= productData.findById(_productId);
+    final productList=productData.products;
     return Scaffold(
       appBar: AppBar(
         title: Text("Product Details",style:TextStyle(color:themeState.darkTheme?Colors.white70:Colors.black)),
@@ -56,14 +63,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           height: MediaQuery.of(context).size.height * 0.35,
           width: double.infinity,
           child: Image.network(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4PdHtXka2-bDDww6Nuect3Mt9IwpE4v4HNw&usqp=CAU',
-            fit: BoxFit.fill,
+           productDetails.imageUrl,
+            // fit: BoxFit.cover,
           ),
         ),
         SingleChildScrollView(
           padding: const EdgeInsets.only(top: 16.0, bottom: 20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 height: 220,
@@ -109,13 +116,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20)),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                ),
-                //padding: const EdgeInsets.all(16.0),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                // decoration: BoxDecoration(
+                //   borderRadius: BorderRadius.only(
+                //       topLeft: Radius.circular(20),
+                //       topRight: Radius.circular(20)),
+                //   color: Theme.of(context).scaffoldBackgroundColor,
+                // ),
+                // padding: const EdgeInsets.all(16.0),
 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,7 +136,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           Container(
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: Text(
-                              'Title',
+                              productDetails.title,
                               maxLines: 2,
                               style: TextStyle(
                                 // color: Theme.of(context).textSelectionColor,
@@ -141,7 +149,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             height: 8,
                           ),
                           Text(
-                            'US \$ 15',
+                            '${productDetails.price} SR',
                             style: TextStyle(
                                 color: themeState.darkTheme
                                     ? Theme.of(context).disabledColor
@@ -166,13 +174,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'Description',
+                        productDetails.desc,
                         style: TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 21.0,
                           color: themeState.darkTheme
                               ? Theme.of(context).disabledColor
-                              : Color(0xFFBA993A),
+                              : Colors.black,
                         ),
                       ),
                     ),
@@ -185,10 +193,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         height: 1,
                       ),
                     ),
-                    _details(themeState.darkTheme, 'Brand: ', 'BrandName'),
-                    _details(themeState.darkTheme, 'Quantity: ', '12 Left'),
-                    _details(themeState.darkTheme, 'Category: ', 'Cat Name'),
-                    _details(themeState.darkTheme, 'Popularity: ', 'Popular'),
+                    _details(themeState.darkTheme, 'Brand: ', productDetails.brand),
+                    _details(themeState.darkTheme, 'Quantity: ', productDetails.quantity.toString()),
+                    _details(themeState.darkTheme, 'Category: ', productDetails.productCategoryName),
+                    _details(themeState.darkTheme, 'Popularity: ', productDetails.isPopular? "Popular":"Barely Known"),
                     SizedBox(
                       height: 15,
                     ),
@@ -243,32 +251,36 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ],
                 ),
               ),
+            
               Column(children: [ Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(8.0),
                   color: Theme.of(context).scaffoldBackgroundColor,
                   child: Text(
                     'Suggested products:',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
                   ),
                 ),
-                SizedBox(height: 20,),
-                // Container(
-                //   margin: EdgeInsets.only(bottom: 30),
-                //   width: double.infinity,
-                //  height: 300,
-                //   child: ListView.builder(
-                //     itemCount: 7,
-                //     scrollDirection: Axis.horizontal,
-                //     itemBuilder: (BuildContext ctx, int index) {
-                //       return ProductCard();
-                //     },
-                //   ),
-                // ),
+               
+                Container(
+                  margin: EdgeInsets.only(bottom: 25),
+                  width: double.infinity,
+                  height: 328,
+                  child: ListView.builder(
+                    itemCount: productList.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (BuildContext ctx, int index) {
+                      return ChangeNotifierProvider.value(
+                        value:productList[index],
+                        child: ProductCard());
+                    },
+                  ),
+                ),
                 ],),
             ],
           ),
         ),
+        
          Align(
               alignment: Alignment.bottomCenter,
               child: Row(children: [
@@ -360,7 +372,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             style: TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 20.0,
-              color: themeState?Colors.white70:Colors.black26,
+              color: Color(0xFFBA993A),
             ),
           ),
         ],

@@ -1,11 +1,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:shop_app/inner_screens/categories_feeds.dart';
 
-class Category extends StatelessWidget {
+class Category extends StatefulWidget {
    Category({Key? key, required this.index}) : super(key: key);
 
   final int index;
+
+  @override
+  State<Category> createState() => _CategoryState();
+}
+
+class _CategoryState extends State<Category> {
 List<Map<String,dynamic>> categoryList = [
     {'CatName': 'Beauty','CateImagePath': 'assets/images/CatBeauty.jpg',},
     {'CatName': 'Clothes', 'CateImagePath': 'assets/images/CatClothes.jpg'},
@@ -18,16 +25,21 @@ List<Map<String,dynamic>> categoryList = [
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(topLeft:Radius.circular(10),topRight: Radius.circular(10)),
-            image: DecorationImage(
-              image: AssetImage(categoryList[index]['CateImagePath'],),
-              fit: BoxFit.fill,
-            )),
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        height: 150,
-        width: 150,
+      InkWell(
+        onTap: (){
+          Navigator.of(context).pushNamed(CategoriesFeeds.routeName,arguments:'${categoryList[widget.index]["CatName"]}');
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft:Radius.circular(10),topRight: Radius.circular(10)),
+              image: DecorationImage(
+                image: AssetImage(categoryList[widget.index]['CateImagePath'],),
+                fit: BoxFit.fill,
+              )),
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          height: 150,
+          width: 150,
+        ),
       ),
       Positioned(
         bottom: 0,
@@ -37,7 +49,7 @@ List<Map<String,dynamic>> categoryList = [
             padding: EdgeInsets.symmetric(horizontal: 16,vertical: 6),
               color: Theme.of(context).cardColor,
               child: Text(
-                categoryList[index]['CatName'],
+                categoryList[widget.index]['CatName'],
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

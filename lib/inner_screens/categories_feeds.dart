@@ -4,24 +4,31 @@ import 'package:shop_app/models/Product.dart';
 import 'package:shop_app/models/feeds_products.dart';
 import 'package:shop_app/provider/products.dart';
 
-class FeedsPage extends StatelessWidget {
-  static const routeName = '/FeedsScreen';
-  // const FeedsPage({Key? key}) : super(key: key);
+class CategoriesFeeds extends StatefulWidget {
+  static const routeName = '/CategoriesFeedsScreen';
+
+  @override
+  State<CategoriesFeeds> createState() => _CategoriesFeedsState();
+}
+
+class _CategoriesFeedsState extends State<CategoriesFeeds> {
+// Future _getProductsOnRefresh(String name) async{
+//   await Provider.of<Products>(context,listen: false).findProdByCatName(name);
+//   setState(() {
+
+//   });
+// }
 
   @override
   Widget build(BuildContext context) {
-    final popular=ModalRoute.of(context)!.settings.arguments as String;
-    final productProvider=Provider.of<Products>(context);
-    List<Product> productsList;
-    if(popular =="popular"){
-      productsList=productProvider.PopularProducts;
-    }
-    else{
-      productsList=productProvider.products;
-    }
+    final productProvider = Provider.of<Products>(context, listen: false);
+    final categoryName = ModalRoute.of(context)!.settings.arguments as String;
+    // print(categoryName);
+    final productsList = productProvider.findProdByCatName(categoryName);
+    // print('productsList ${productsList[0].productCategoryName}');
     return Scaffold(
       appBar: AppBar(
-        title: Text("Products"),
+        title: Text(categoryName),
         elevation: 10,
         flexibleSpace: Container(
             padding: const EdgeInsets.all(5.0),
@@ -47,17 +54,18 @@ class FeedsPage extends StatelessWidget {
       //           ) ,
       // staggeredTileBuilder: (int index) =>
       // new StaggeredTile.count(3, index.isEven ? 4 : 5),
-      
+
       // ),
       body: GridView.count(
-        childAspectRatio: 300/600,
+        childAspectRatio: 300 / 600,
         mainAxisSpacing: 8,
         crossAxisSpacing: 5,
         crossAxisCount: 2,
         children: List.generate(
             productsList.length,
-            (index) => ChangeNotifierProvider.value(value:productsList[index],child: ProductCard())),),
-      
+            (index) => ChangeNotifierProvider.value(
+                value: productsList[index], child: ProductCard())),
+      ),
     );
   }
 }

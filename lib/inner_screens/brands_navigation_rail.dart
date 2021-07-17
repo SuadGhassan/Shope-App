@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/provider/products.dart';
 
 import 'brands_rail_widget.dart';
 
@@ -16,8 +18,11 @@ class _BrandNavigationRailScreenState extends State<BrandNavigationRailScreen> {
   final padding = 8.0;
   String? routeArgs;
   String? brand;
+  //we use here didChangeDependencies() because we cannot use initState with ModalRoute 
+  //and also to check the index and display products for the intended Brand. 
   @override
   void didChangeDependencies() {
+    //arguments here is the index and it is int type so i use here toString()method
     routeArgs = ModalRoute.of(context)!.settings.arguments.toString();
     _selectedIndex = int.parse(
       routeArgs!.substring(1, 2),
@@ -68,6 +73,7 @@ class _BrandNavigationRailScreenState extends State<BrandNavigationRailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       body: Row(
         children: <Widget>[
@@ -203,6 +209,15 @@ class ContentSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productsBrandData=Provider.of<Products>(context);
+    final productBrandList=productsBrandData.findProductsForBrand(brand);
+    if(brand=="All"){
+      for(int i=0;i<productsBrandData.products.length;i++){
+        productBrandList.add(productsBrandData.products[i]);
+      }
+    }
+    print("Product Brand ${productBrandList[0].imageUrl}");
+    print("brand $brand");
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 8, 0, 0),
@@ -210,9 +225,11 @@ class ContentSpace extends StatelessWidget {
           removeTop: true,
           context: context,
           child: ListView.builder(
-            itemCount: 5,
+            itemCount: productBrandList.length,
             itemBuilder: (BuildContext context, int index) =>
-                BrandsNavigationRail(),
+                ChangeNotifierProvider.value(
+                  value:productBrandList[index],
+                  child: BrandsNavigationRail()),
           ),
         ),
       ),

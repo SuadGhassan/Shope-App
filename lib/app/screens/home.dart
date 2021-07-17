@@ -2,10 +2,13 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:backdrop/backdrop.dart';
 import 'package:banner_carousel/banner_carousel.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/app/screens/feeds.dart';
 import 'package:shop_app/inner_screens/brands_navigation_rail.dart';
 import 'package:shop_app/models/back_layer.dart';
 import 'package:shop_app/models/category.dart';
 import 'package:shop_app/models/popular_products.dart';
+import 'package:shop_app/provider/products.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -49,11 +52,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final providerPopularProducts = Provider.of<Products>(context);
+    final popularProducts = providerPopularProducts.PopularProducts;
+    print("product number: ${popularProducts.length}");
     return Container(
       child: Center(
         child: BackdropScaffold(
-          frontLayerBackgroundColor:Theme.of(context).scaffoldBackgroundColor,
-          backLayerBackgroundColor:Theme.of(context).scaffoldBackgroundColor,
+          frontLayerBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backLayerBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
           headerHeight: MediaQuery.of(context).size.height * 0.25,
           appBar: BackdropAppBar(
             elevation: 10,
@@ -111,23 +117,21 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text("Categories",
-                  
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            )),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      )),
                 ),
-                           Container(
-                             height: 180,
-                             width: double.infinity,
-                             child: ListView.builder(
-                                                   itemCount: 6,
-                                                   scrollDirection: Axis.horizontal,
-                              itemBuilder: (BuildContext context, int index) {
-                                                   return  Category(index: index);
-                                                 }),
-                           ),
-                
+                Container(
+                  height: 180,
+                  width: double.infinity,
+                  child: ListView.builder(
+                      itemCount: 6,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Category(index: index);
+                      }),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, right: 8),
                   child: Row(
@@ -140,12 +144,14 @@ class _HomePageState extends State<HomePage> {
                           )),
                       Spacer(),
                       TextButton(
-                        onPressed: () {Navigator.of(context).pushNamed(
-                          BrandNavigationRailScreen.routeName,
-                          arguments: {
-                            7,
-                          },
-                        );},
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                            BrandNavigationRailScreen.routeName,
+                            arguments: {
+                              7,
+                            },
+                          );
+                        },
                         child: Text("View all...",
                             style: TextStyle(
                                 fontSize: 15,
@@ -163,12 +169,14 @@ class _HomePageState extends State<HomePage> {
                     autoplay: true,
                     viewportFraction: 0.8,
                     scale: 0.9,
-                    onTap: (index) {Navigator.of(context).pushNamed(
-                          BrandNavigationRailScreen.routeName,
-                          arguments: {
-                            index,
-                          },
-                        );},
+                    onTap: (index) {
+                      Navigator.of(context).pushNamed(
+                        BrandNavigationRailScreen.routeName,
+                        arguments: {
+                          index,
+                        },
+                      );
+                    },
                     itemBuilder: (BuildContext context, int index) {
                       return ClipRRect(
                           borderRadius: BorderRadius.circular(15),
@@ -182,39 +190,44 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Popular Products',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
-                    ),
-                    Spacer(),
-                  TextButton(
-                      onPressed: () { },
-                      child: Text(
-                        'View all...',
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Popular Products',
                         style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                            color: Colors.red),
+                            fontWeight: FontWeight.w800, fontSize: 20),
                       ),
-                    )
-                  ],
+                      Spacer(),
+                      TextButton(
+                        onPressed: () {Navigator.pushNamed(context, FeedsPage.routeName,arguments: "popular");},
+                        child: Text(
+                          'View all...',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                              color: Colors.red),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 285,
-                margin: EdgeInsets.symmetric(horizontal: 3),
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 8,
-                    itemBuilder: (BuildContext ctx, int index) {
-                      return PopularProducts();
-                    }),
-              )
+                Container(
+                  width: double.infinity,
+                  height: 285,
+                  margin: EdgeInsets.symmetric(horizontal: 3),
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: popularProducts.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        return ChangeNotifierProvider.value(
+                          value:popularProducts[index],
+                          child: PopularProducts(
+                            
+                          ),
+                        );
+                      }),
+                )
               ],
             ),
           ),

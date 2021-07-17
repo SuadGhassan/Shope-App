@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
+import 'package:provider/provider.dart';
 import 'package:shop_app/inner_screens/product_details.dart';
+import 'package:shop_app/models/Product.dart';
 
 class ProductCard extends StatefulWidget {
-  const ProductCard(
-      {Key? key,
-      required this.id,
-      required this.desc,
-      required this.price,
-      required this.imageURL,
-      required this.quantity,
-      required this.isFaviorted,
-      required this.isPupolar})
-      : super(key: key);
-  final String id;
-  final String desc;
-  final double price;
-  final String imageURL;
-  final int quantity;
-  final bool isFaviorted;
-  final bool isPupolar;
+  
 
   @override
   _ProductCardState createState() => _ProductCardState();
@@ -28,16 +14,19 @@ class ProductCard extends StatefulWidget {
 class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
+      final productAttributes=Provider.of<Product>(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, ProductDetailsPage.routeName);
+          Navigator.pushNamed(context, ProductDetailsPage.routeName,
+          arguments: productAttributes.id
+          );
         },
         child: Container(
           // padding: EdgeInsets.all(8),
           width: 250,
-          height: 290,
+          height:290,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
             color: Theme.of(context).backgroundColor,
@@ -55,8 +44,8 @@ class _ProductCardState extends State<ProductCard> {
                         maxHeight: MediaQuery.of(context).size.height * 0.3,
                       ),
                       child: Image.network(
-                        widget.imageURL,
-                        fit: BoxFit.fitWidth,
+                        productAttributes.imageUrl,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
@@ -81,7 +70,7 @@ class _ProductCardState extends State<ProductCard> {
                       height: 4,
                     ),
                     Text(
-                      widget.desc,
+                      productAttributes.desc,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: TextStyle(
@@ -92,7 +81,7 @@ class _ProductCardState extends State<ProductCard> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
                       child: Text(
-                        widget.price.toString(),
+                        productAttributes.price.toString(),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
                         style: TextStyle(
@@ -105,7 +94,7 @@ class _ProductCardState extends State<ProductCard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Quantity: ${widget.quantity}',
+                          'Quantity: ${productAttributes.quantity}',
                           style: TextStyle(
                               fontSize: 12,
                               color: Theme.of(context).textSelectionColor,

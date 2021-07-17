@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/dark_theme_preferences.dart';
 
-class DarkThemeProvider extends ChangeNotifier{
+class DarkThemeProvider with ChangeNotifier{
   //here get object from DarkThemePreferences class
 DarkThemePreferences darkThemePreferences=DarkThemePreferences();
   bool _darkTheme=false;
