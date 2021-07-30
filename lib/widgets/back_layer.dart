@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/app/screens/cart.dart';
 import 'package:shop_app/app/screens/feeds.dart';
+import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/const/my_icons.dart';
+import 'package:shop_app/widgets/upload_new_product.dart';
 
 class BackLayer extends StatelessWidget {
    BackLayer({Key? key}) : super(key: key);
@@ -122,11 +124,11 @@ class BackLayer extends StatelessWidget {
                 }, 'Cart', 1,Theme.of(context).disabledColor),
                 const SizedBox(height: 10.0),
                 content(context, () {
-                  navigateTo(context, FeedsPage.routeName);
+                  navigateTo(context, WishlistPage.routeName);
                 }, 'Wishlist', 2,Theme.of(context).disabledColor),
                 const SizedBox(height: 10.0),
                 content(context, () {
-                  navigateTo(context, FeedsPage.routeName);
+                  navigateTo(context, UploadProduct.routeName);
                 }, 'Upload a new product', 3,Theme.of(context).disabledColor),
                 ],
               ),
@@ -149,9 +151,9 @@ class BackLayer extends StatelessWidget {
     );
   }
 
-  Widget content(BuildContext ctx,  Function fct, String text, int index,Color color) {
+  Widget content(BuildContext ctx,  VoidCallback fct, String text, int index,Color color) {
     return InkWell(
-      onTap: ()=>fct,
+      onTap: fct,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

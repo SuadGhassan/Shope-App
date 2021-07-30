@@ -3,6 +3,7 @@ import 'package:badges/badges.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/inner_screens/product_details.dart';
 import 'package:shop_app/models/Product.dart';
+import 'package:shop_app/widgets/feeds_dialog.dart';
 
 class ProductCard extends StatefulWidget {
   
@@ -29,7 +30,7 @@ class _ProductCardState extends State<ProductCard> {
           height:290,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
-            color: Theme.of(context).backgroundColor,
+            color: Colors.white,
           ),
           child: Column(
             children: [
@@ -46,6 +47,8 @@ class _ProductCardState extends State<ProductCard> {
                       child: Image.network(
                         productAttributes.imageUrl,
                         fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: 200,
                       ),
                     ),
                   ),
@@ -103,7 +106,7 @@ class _ProductCardState extends State<ProductCard> {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                              onTap: () {},
+                              onTap: () async{showDialog(context: context, builder: (BuildContext context)=>FeedsDialog(productId:productAttributes.id,));},
                               borderRadius: BorderRadius.circular(18.0),
                               child: Icon(
                                 Icons.more_horiz,

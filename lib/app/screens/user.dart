@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:list_tile_switch/list_tile_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/screens/cart.dart';
+import 'package:shop_app/app/screens/landing_page.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/const/my_icons.dart';
 import 'package:shop_app/provider/dart_theme_provider.dart';
@@ -37,77 +38,74 @@ class _UserPageState extends State<UserPage> {
           controller: _scrollController,
           slivers: <Widget>[
             SliverAppBar(
-              automaticallyImplyLeading: false,
-              elevation: 4,
-              expandedHeight: 200,
-              pinned: true,
-              flexibleSpace: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
+                automaticallyImplyLeading: false,
+                elevation: 4,
+                expandedHeight: 200,
+                pinned: true,
+                flexibleSpace: LayoutBuilder(builder:
+                    (BuildContext context, BoxConstraints constraints) {
                   top = constraints.biggest.height;
                   return Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [
-                            Colors.blueGrey,
-                            Colors.greenAccent,
-                          ],
-                          begin: const FractionalOffset(0.0, 0.0),
-                          end: const FractionalOffset(1.0, 0.0),
-                          stops: [0.0, 1.0],
-                          tileMode: TileMode.clamp),
-                    ),
-                    child: FlexibleSpaceBar(
-                      collapseMode: CollapseMode.parallax,
-                      centerTitle: true,
-                      title: AnimatedOpacity(
-                        opacity: top <= 110.0 ? 1.0 : 0,
-                        duration: Duration(milliseconds: 300),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 12,
-                            ),
-                            Container(
-                              height: kToolbarHeight / 1.8,
-                              width: kToolbarHeight / 1.8,
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white,
-                                    blurRadius: 1.0,
-                                  ),
-                                ],
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image: NetworkImage(
-                                      'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: [
+                              Colors.blueGrey,
+                              Colors.greenAccent,
+                            ],
+                            begin: const FractionalOffset(0.0, 0.0),
+                            end: const FractionalOffset(1.0, 0.0),
+                            stops: [0.0, 1.0],
+                            tileMode: TileMode.clamp),
+                      ),
+                      child: FlexibleSpaceBar(
+                          collapseMode: CollapseMode.parallax,
+                          centerTitle: true,
+                          title: AnimatedOpacity(
+                            opacity: top <= 110.0 ? 1.0 : 0,
+                            duration: Duration(milliseconds: 300),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 12,
                                 ),
-                              ),
+                                Container(
+                                  height: kToolbarHeight / 1.8,
+                                  width: kToolbarHeight / 1.8,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white,
+                                        blurRadius: 1.0,
+                                      ),
+                                    ],
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: NetworkImage(
+                                          'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 12,
+                                ),
+                                Text(
+                                  // 'top.toString()',
+                                  'Guest',
+                                  style: TextStyle(
+                                      fontSize: 20.0,
+                                      color:
+                                          Theme.of(context).textSelectionColor),
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              width: 12,
-                            ),
-                            Text(
-                              // 'top.toString()',
-                              'Guest',
-                              style: TextStyle(
-                                  fontSize: 20.0,
-                                  color: Theme.of(context).textSelectionColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                      background: Image(
-                        image: NetworkImage(
-                            'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                          ),
+                          background: Image(
+                            image: NetworkImage(
+                                'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                            fit: BoxFit.fill,
+                          )));
+                })),
             SliverToBoxAdapter(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -126,7 +124,8 @@ class _UserPageState extends State<UserPage> {
                     child: InkWell(
                       splashColor: Theme.of(context).splashColor,
                       child: ListTile(
-                        onTap: () =>Navigator.of(context).pushNamed(WishlistPage.routeName),
+                        onTap: () => Navigator.of(context)
+                            .pushNamed(WishlistPage.routeName),
                         title: Text("Wishlist"),
                         trailing: Icon(Icons.chevron_right_rounded),
                         leading: Icon(MyAppIcons.wishlist),
@@ -138,7 +137,8 @@ class _UserPageState extends State<UserPage> {
                     child: InkWell(
                       splashColor: Theme.of(context).splashColor,
                       child: ListTile(
-                        onTap: () =>Navigator.of(context).pushNamed(CartPage.routeName),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed(CartPage.routeName),
                         title: Text("Cart"),
                         trailing: Icon(Icons.chevron_right_rounded),
                         leading: Icon(MyAppIcons.cart),
@@ -179,7 +179,17 @@ class _UserPageState extends State<UserPage> {
                     switchActiveColor: Colors.cyan[900],
                     title: Text('Dark Theme'),
                   ),
-                  userListTile(context, "Logout", "", 4),
+                  Material(
+      color: Colors.transparent,
+      child: InkWell(
+        splashColor: Theme.of(context).splashColor,
+        child: ListTile(
+          onTap: () {Navigator.canPop(context)?Navigator.pop(context):null;},
+          title: Text("Logout"),
+          leading: Icon(Icons.exit_to_app_rounded),
+        ),
+      ),
+    ),
                 ],
               ),
             )

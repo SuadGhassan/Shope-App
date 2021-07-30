@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/app/screens/auth/login.dart';
+import 'package:shop_app/app/screens/auth/sign_up.dart';
 import 'package:shop_app/app/screens/cart.dart';
 import 'package:shop_app/app/screens/feeds.dart';
+import 'package:shop_app/app/screens/home.dart';
+import 'package:shop_app/app/screens/landing_page.dart';
+import 'package:shop_app/app/screens/main_screen.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/bottom_navgation_bar.dart';
 import 'package:shop_app/const/theme.dart';
 import 'package:shop_app/inner_screens/brands_navigation_rail.dart';
 import 'package:shop_app/inner_screens/categories_feeds.dart';
 import 'package:shop_app/inner_screens/product_details.dart';
-import 'package:shop_app/models/Product.dart';
+import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/dart_theme_provider.dart';
 import 'package:shop_app/provider/products.dart';
+import 'package:shop_app/provider/wishlist_provider.dart';
+import 'package:shop_app/widgets/upload_new_product.dart';
 
 void main() {
   runApp(MyApp());
@@ -51,15 +58,29 @@ class _MyAppState extends State<MyApp> {
           },
         
         ),
+          ChangeNotifierProvider(
+          create: (_) {
+            return CartProvider();
+          },
+        
+        ),
+         ChangeNotifierProvider(
+          create: (_) {
+            return WishListProvider();
+          },
+        
+        ),
       ],
       //consumer as same as provider but this for only one widget
       child: Consumer<DarkThemeProvider>(builder: (context, themeData, child) {
         return MaterialApp(
-          title: 'Shope App',
+          title: ' Shop App',
           theme: Styles.themeData(themeChangeProvider.darkTheme, context),
-          home: BottomBarPage(),
+          home: MainScreen(),
           routes: {
-            //   '/': (ctx) => LandingPage(),
+                // LandingPage.routeName: (ctx) => LandingPage(),
+                // MainScreen.routeName:(ctx)=> MainScreen(),
+             HomePage.routeName: (ctx) => HomePage(),
             BrandNavigationRailScreen.routeName: (ctx) =>
                 BrandNavigationRailScreen(),
             CartPage.routeName: (ctx) => CartPage(),
@@ -67,17 +88,15 @@ class _MyAppState extends State<MyApp> {
             WishlistPage.routeName: (ctx) => WishlistPage(),
             ProductDetailsPage.routeName: (ctx) => ProductDetailsPage(),
             CategoriesFeeds.routeName:(ctx)=> CategoriesFeeds(),
+            LoginScreen.routeName:(ctx)=> LoginScreen(),
+            SignUp.routeName:(ctx)=> SignUp(),
+            BottomBarPage.routeName:(ctx)=> BottomBarPage(),
+            UploadProduct.routeName:(ctx)=> UploadProduct()
           },
         );
       }),
     );
   }
 }
-// ThemeData(
-//         primarySwatch: Colors.teal,
-//         primaryColor: Colors.white,
-//         disabledColor: Colors.black.withOpacity(0.7), 
-//         splashColor: Colors.cyan.withOpacity(0.2),
-        
-//       )
+
 

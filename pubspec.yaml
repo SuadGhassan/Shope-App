@@ -36,7 +36,9 @@ dependencies:
   backdrop: ^0.6.2
   banner_carousel: ^1.2.1
   card_swiper: ^1.0.2
-
+  cached_network_image: ^3.1.0
+  wave: ^0.2.0
+  image_picker: ^0.8.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

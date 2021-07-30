@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fluttericon/entypo_icons.dart';
+import 'package:fluttericon/iconic_icons.dart';
+import 'package:fluttericon/typicons_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/inner_screens/product_details.dart';
 import 'package:shop_app/models/Product.dart';
+import 'package:shop_app/provider/cart_provider.dart';
+import 'package:shop_app/provider/wishlist_provider.dart';
 
 
 class PopularProducts extends StatelessWidget {
@@ -11,7 +15,8 @@ class PopularProducts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
         final productBrandAttributes=Provider.of<Product>(context);
-
+         final cartProvider = Provider.of<CartProvider>(context);
+final favProvider = Provider.of<WishListProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -55,7 +60,7 @@ class PopularProducts extends StatelessWidget {
                       top: 8,
                       child: Icon(
                         Entypo.star,
-                        color: Colors.grey.shade800,
+                        color: favProvider.getWishListItems.containsKey(productBrandAttributes.id)?Colors.red[900]:Colors.grey.shade800,
                       ),
                     ),
                     Positioned(
@@ -114,19 +119,26 @@ class PopularProducts extends StatelessWidget {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: () {},
+                                onTap: () {cartProvider.getCartItems.containsKey(productBrandAttributes.id)?(){}:
+                      cartProvider.addProdToCart(
+                          productBrandAttributes.id,
+                          productBrandAttributes.title,
+                          productBrandAttributes.price,
+                          productBrandAttributes.imageUrl);},
                                 borderRadius: BorderRadius.circular(30.0),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Icon(
-                                   Icons.shopping_cart_outlined,
-                                    size: 25,
-                                    color: Colors.black,
+                                  padding: const EdgeInsets.only(right:16.0),
+                                  child:
+                                    Icon(cartProvider.getCartItems.containsKey(productBrandAttributes.id)?Icons.check:
+                                     Icons.add,
+                                      size: 28,
+                                      color: Colors.cyan[900],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          )
+                          
                         ],
                       )
                     ],

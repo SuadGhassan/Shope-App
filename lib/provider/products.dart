@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/Product.dart';
-import 'package:shop_app/models/popular_products.dart';
+import 'package:shop_app/widgets/popular_products.dart';
 
 class Products with ChangeNotifier {
   List<Product> _products = [
@@ -618,4 +618,12 @@ Product findById(String productId){
         .toList();
     return _productsBrand;
   }
+   List<Product> searchQuery(String? searchText) {
+    List<Product> _searchList = _products
+        .where((element) =>
+            element.title.toLowerCase().contains(searchText!.toLowerCase()))
+        .toList();
+    return _searchList;
+  }
+  
 }

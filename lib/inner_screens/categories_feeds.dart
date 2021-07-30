@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/Product.dart';
-import 'package:shop_app/models/feeds_products.dart';
+import 'package:shop_app/widgets/feeds_products.dart';
 import 'package:shop_app/provider/products.dart';
 
 class CategoriesFeeds extends StatefulWidget {

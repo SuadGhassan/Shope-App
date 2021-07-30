@@ -5,12 +5,13 @@ import 'package:banner_carousel/banner_carousel.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/screens/feeds.dart';
 import 'package:shop_app/inner_screens/brands_navigation_rail.dart';
-import 'package:shop_app/models/back_layer.dart';
-import 'package:shop_app/models/category.dart';
-import 'package:shop_app/models/popular_products.dart';
+import 'package:shop_app/widgets/back_layer.dart';
+import 'package:shop_app/widgets/category.dart';
+import 'package:shop_app/widgets/popular_products.dart';
 import 'package:shop_app/provider/products.dart';
 
 class HomePage extends StatefulWidget {
+  static const routeName = '/HomeScreen';
   const HomePage({Key? key}) : super(key: key);
 
   @override
