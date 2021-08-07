@@ -1,10 +1,16 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttericon/entypo_icons.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/services/show_dialog.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class SignUp extends StatefulWidget {
   static const routeName = "/SignUpScreen";
@@ -25,22 +31,70 @@ class _SignUpState extends State<SignUp> {
   bool _obscureText = true;
   File? _pickedImage;
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  ShowDialog _showDialogObj = ShowDialog();
+  bool _isLoading = false;
+  String? url;
 
-  @override
-  void dispose() {
-    _passwordFocusNode.dispose();
-    _emailFocusNode.dispose();
-    _phoneFocusNode.dispose();
-    super.dispose();
-  }
 
   //this method for submit the form after fill the textFields.
-  void _submitForm() {
+  void _submitForm() async {
     final isValid = _formKey.currentState!
         .validate(); //this is a bool var and it will be true if the form is valid.
     FocusScope.of(context).unfocus();
+    var date = DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
     if (isValid) {
       _formKey.currentState!.save();
+
+      try {
+        if (_pickedImage == null) {
+          _showDialogObj.authErrorHandler("please pick an image", context);
+        } else {
+          setState(() {
+            _isLoading = true;
+          });
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child("userImages")
+              .child(_fullName + ".jpg");
+          await ref.putFile(
+              _pickedImage!); //here will save image url in the firebaseStorage
+          url = await ref
+              .getDownloadURL(); 
+               await _auth
+            .createUserWithEmailAndPassword(
+                email: _emailAddress.toLowerCase().trim(),
+                password: _password.trim())
+            .then((value) =>
+                Navigator.canPop(context) ? Navigator.pop(context) : null);
+        final User? user = _auth.currentUser;
+        final _uid = user!.uid;
+        user.updateDisplayName(_fullName);
+        user.updateEmail(_emailAddress);
+        user.reload();
+        await FirebaseFirestore.instance.collection("users").doc(_uid).set({
+          "id": _uid,
+          "name": _fullName,
+          "email": _emailAddress,
+          "phoneNumber": _phoneNumber,
+          "imageUrl": url,
+          "joinAt": formattedDate,
+          "createAt": Timestamp
+              .now(), // Timestamp is provided by firestore to take the time when the user login
+        });//and here will get the url and assign it to the url var
+        }
+       
+      } catch (error) {
+        _showDialogObj.authErrorHandler("$error", context);
+        print("Error occured $error");
+      } 
+      // finally {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      // }
     }
   }
 
@@ -63,6 +117,15 @@ class _SignUpState extends State<SignUp> {
     });
     Navigator.pop(context);
   }
+   @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
+   
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -310,6 +373,7 @@ class _SignUpState extends State<SignUp> {
                       textInputAction: TextInputAction.next,
                       focusNode: _phoneFocusNode,
                       onEditingComplete: _submitForm,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         border: const UnderlineInputBorder(),
                         filled: true,
@@ -318,37 +382,40 @@ class _SignUpState extends State<SignUp> {
                         fillColor: Theme.of(context).backgroundColor,
                       ),
                       onSaved: (value) {
-                        _phoneNumber = value! as int;
+                        _phoneNumber = int.parse(value!);
                       },
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Sign Up",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                )),
-                            SizedBox(
-                              width: 10,
+                      _isLoading
+                          ? CircularProgressIndicator()
+                          : ElevatedButton(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Sign Up",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Icon(Entypo.user_add),
+                                ],
+                              ),
+                              onPressed: _submitForm,
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                // side:
+                                //     BorderSide(color: Colors.grey.shade500),
+                              ))),
                             ),
-                            Icon(Entypo.user_add),
-                          ],
-                        ),
-                        onPressed: _submitForm,
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          // side:
-                          //     BorderSide(color: Colors.grey.shade500),
-                        ))),
-                      ),
                       SizedBox(
                         width: 13,
                       )
@@ -474,17 +541,17 @@ class _SignUpState extends State<SignUp> {
                   //     SizedBox(
                   //       width: 30,
                   //     ),
-                      // GestureDetector(
-                      //   onTap: () {},
-                      //   child: Text(
-                      //     "Sign Up",
-                      //     style: TextStyle(
-                      //         fontWeight: FontWeight.bold,
-                      //         fontSize: 16.0,
-                      //         fontFamily: "KiwiMaru",
-                      //         color: Colors.cyan[900]),
-                      //   ),
-                      // )
+                  // GestureDetector(
+                  //   onTap: () {},
+                  //   child: Text(
+                  //     "Sign Up",
+                  //     style: TextStyle(
+                  //         fontWeight: FontWeight.bold,
+                  //         fontSize: 16.0,
+                  //         fontFamily: "KiwiMaru",
+                  //         color: Colors.cyan[900]),
+                  //   ),
+                  // )
                   //   ],
                   // )
                 ],

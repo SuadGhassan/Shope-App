@@ -1,14 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:list_tile_switch/list_tile_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/screens/cart.dart';
-import 'package:shop_app/app/screens/landing_page.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/const/my_icons.dart';
 import 'package:shop_app/provider/dart_theme_provider.dart';
 
 class UserPage extends StatefulWidget {
-  // const UserPage({Key? key}) : super(key: key);
+  const UserPage({Key? key}) : super(key: key);
 
   @override
   State<UserPage> createState() => _UserPageState();
@@ -17,7 +18,13 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   late ScrollController _scrollController;
   var top = 0.0;
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late String _uid;
+  late String _name="";
+  late String _email="";
+  late String _joinedAt="";
+  late int _phoneNumber=0;
+  late String _imageUrl="https://t3.ftcdn.net/jpg/01/83/55/76/240_F_183557656_DRcvOesmfDl5BIyhPKrcWANFKy2964i9.jpg";
   @override
   void initState() {
     _scrollController = ScrollController();
@@ -25,6 +32,29 @@ class _UserPageState extends State<UserPage> {
       setState(() {});
     });
     super.initState();
+    getData();
+  }
+
+  void getData() async {
+    User? user = _auth.currentUser;
+    _uid = user!.uid;
+    print("user id : $_uid");
+    print("email............ ${user.email}");
+    final DocumentSnapshot<Map<String, dynamic>>? userDoc = user.isAnonymous
+        ? null
+        : await FirebaseFirestore.instance.collection('users').doc(_uid).get();
+    if (userDoc == null) {
+      return ;
+    } else {
+      setState(() {
+        _name = userDoc.get("name");
+        _email = user.email!;
+        print("email...... $_email");
+        _joinedAt = userDoc.get("joinAt");
+        _phoneNumber = userDoc.get("phoneNumber");
+        _imageUrl = userDoc.get("imageUrl");
+      });
+    }
   }
 
   @override
@@ -81,8 +111,7 @@ class _UserPageState extends State<UserPage> {
                                     shape: BoxShape.circle,
                                     image: DecorationImage(
                                       fit: BoxFit.fill,
-                                      image: NetworkImage(
-                                          'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                                      image: NetworkImage(_imageUrl),
                                     ),
                                   ),
                                 ),
@@ -91,7 +120,7 @@ class _UserPageState extends State<UserPage> {
                                 ),
                                 Text(
                                   // 'top.toString()',
-                                  'Guest',
+                                  _name == null ? 'Guest' : _name,
                                   style: TextStyle(
                                       fontSize: 20.0,
                                       color:
@@ -101,8 +130,7 @@ class _UserPageState extends State<UserPage> {
                             ),
                           ),
                           background: Image(
-                            image: NetworkImage(
-                                'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                            image: NetworkImage(_imageUrl),
                             fit: BoxFit.fill,
                           )));
                 })),
@@ -153,11 +181,13 @@ class _UserPageState extends State<UserPage> {
                     thickness: 1,
                     color: Colors.blueGrey[200],
                   ),
-                  userListTile(context, "Email", "soadalkogok082@gmail.com", 0),
-                  userListTile(context, "Phone Number", "058114472", 1),
+                 
+                  userListTile(context, "Email", _email, 0),
+                  userListTile(
+                      context, "Phone Number", _phoneNumber.toString(), 1),
                   userListTile(
                       context, "Shipping address", "Jeddah,Alhamra", 2),
-                  userListTile(context, "Joined data", "17/2", 3),
+                  userListTile(context, "Joined data", _joinedAt, 3),
                   Padding(
                     padding: const EdgeInsets.only(left: 10.0),
                     child: userTitle(context, "User Settings"),
@@ -180,16 +210,52 @@ class _UserPageState extends State<UserPage> {
                     title: Text('Dark Theme'),
                   ),
                   Material(
-      color: Colors.transparent,
-      child: InkWell(
-        splashColor: Theme.of(context).splashColor,
-        child: ListTile(
-          onTap: () {Navigator.canPop(context)?Navigator.pop(context):null;},
-          title: Text("Logout"),
-          leading: Icon(Icons.exit_to_app_rounded),
-        ),
-      ),
-    ),
+                    color: Colors.transparent,
+                    child: InkWell(
+                      splashColor: Theme.of(context).splashColor,
+                      child: ListTile(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext ctx) {
+                                return AlertDialog(
+                                  title: Row(
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 8.0),
+                                        child: Image.network(
+                                          'https://image.flaticon.com/icons/png/128/1828/1828304.png',
+                                          height: 20,
+                                          width: 20,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("Sign out?"),
+                                      )
+                                    ],
+                                  ),
+                                  content: Text("Do you want sign out?"),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text("Cancel")),
+                                    TextButton(
+                                        onPressed: () {
+                                          _auth.signOut().then((value) =>
+                                              Navigator.pop(context));
+                                        },
+                                        child: Text("Ok"))
+                                  ],
+                                );
+                              });
+                        },
+                        title: Text("Logout"),
+                        leading: Icon(Icons.exit_to_app_rounded),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             )
@@ -281,3 +347,5 @@ class _UserPageState extends State<UserPage> {
     );
   }
 }
+
+class _uid {}

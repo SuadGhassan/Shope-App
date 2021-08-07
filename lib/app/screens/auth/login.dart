@@ -1,8 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/entypo_icons.dart';
+import 'package:shop_app/app/screens/auth/forget_password.dart';
+import 'package:shop_app/services/show_dialog.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
+
 class LoginScreen extends StatefulWidget {
   static const routeName = "/LoginScreen";
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,25 +16,49 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final FocusNode _passwordFocusNode=FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
   String _emailAddress = "";
   String _password = "";
   bool _obscureText = true;
   final _formKey = GlobalKey<FormState>();
-  
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ShowDialog _showDialogObj = ShowDialog();
+  bool _isLoading = false;
   @override
   void dispose() {
     _passwordFocusNode.dispose();
     super.dispose();
   }
+
   //this method for submit the form after fill the textFields.
-  void _submitForm() {
-    final isValid = _formKey.currentState!.validate(); //this is a bool var and it will be true if the form is valid.
+  void _submitForm() async {
+    final isValid = _formKey.currentState!
+        .validate(); //this is a bool var and it will be true if the form is valid.
     FocusScope.of(context).unfocus();
     if (isValid) {
       _formKey.currentState!.save();
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        await _auth
+            .signInWithEmailAndPassword(
+                email: _emailAddress.toLowerCase().trim(),
+                password: _password.trim())
+            .then((value) =>
+                Navigator.canPop(context) ? Navigator.pop(context) : null);
+      } catch (error) {
+        _showDialogObj.authErrorHandler("$error", context);
+
+        print("$error");
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,24 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.only(top: 100),
-              height: 120.0,
-              width: 120.0,
-              decoration: BoxDecoration(
-                //  color: Theme.of(context).backgroundColor,
-                borderRadius: BorderRadius.circular(20),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    'https://image.flaticon.com/icons/png/128/869/869636.png',
-                  ),
-                  fit: BoxFit.fill,
-                ),
-                shape: BoxShape.rectangle,
-              ),
+              height: 250.0,
+              width: 250.0,
+              child:Image.asset("assets/images/logo-color.png"),
+              
             ),
-            SizedBox(
-              height: 30,
-            ),
+           
             Form(
               key: _formKey,
               child: Column(
@@ -98,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(_passwordFocusNode),
+                          .requestFocus(_passwordFocusNode),
                       decoration: InputDecoration(
                         border: const UnderlineInputBorder(),
                         filled: true,
@@ -122,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                       keyboardType: TextInputType.visiblePassword,
-                        focusNode: _passwordFocusNode,
+                      focusNode: _passwordFocusNode,
                       decoration: InputDecoration(
                         border: const UnderlineInputBorder(),
                         filled: true,
@@ -132,7 +148,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             setState(() {
                               _obscureText = !_obscureText;
                             });
-                            
                           },
                           child: Icon(_obscureText
                               ? Icons.visibility
@@ -145,153 +160,175 @@ class _LoginScreenState extends State<LoginScreen> {
                         _password = value!;
                       },
                       obscureText: _obscureText,
-                      onEditingComplete:_submitForm,
+                      onEditingComplete: _submitForm,
                     ),
                   ),
-                  SizedBox(height: 50,),
+
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right:16.0),
+                      child: TextButton(
+                        onPressed: () {Navigator.pushNamed(context, ForgetPassword.routeName);},
+                        child: Text(
+                          "Forgot password?",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.underline,
+                         ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                      
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("Login",
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              SizedBox(
-                                width: 10,
+                      _isLoading
+                          ? CircularProgressIndicator()
+                          : ElevatedButton(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Login",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Icon(Entypo.user),
+                                ],
                               ),
-                              Icon(Entypo.user),
-                            ],
-                          ),
-                          onPressed: _submitForm,
-                          style: ButtonStyle(
-                              shape:
-                                  MaterialStateProperty.all<RoundedRectangleBorder>(
+                              onPressed: _submitForm,
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            // side:
-                            //     BorderSide(color: Colors.grey.shade500),
-                          ))),
-                        ),
-                        SizedBox(width: 13,)
+                                borderRadius: BorderRadius.circular(10),
+                                // side:
+                                //     BorderSide(color: Colors.grey.shade500),
+                              ))),
+                            ),
+                      SizedBox(
+                        width: 13,
+                      ),
                     ],
                   ),
-            //       Padding(
-            //         padding: const EdgeInsets.only(top:70.0),
-            //         child: Row(
-            //   children: [
-            //     Expanded(
-            //         child: Padding(
-            //           padding: const EdgeInsets.symmetric(
-            //             horizontal: 10,
-            //           ),
-            //           child: Divider(
-            //             thickness: 1.5,
-            //             color: Colors.grey,
-            //           ),
-            //         ),
-            //     ),
-            //     Text(
-            //         "Or continue with",
-            //         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-            //     ),
-            //     Expanded(
-            //         child: Padding(
-            //           padding: const EdgeInsets.symmetric(
-            //             horizontal: 10,
-            //           ),
-            //           child: Divider(
-            //             thickness: 1.5,
-            //             color: Colors.grey,
-            //           ),
-            //         ),
-            //     ),
-            //   ],
-            // ),
-            //       ),
-            // SizedBox(
-            //   height: 30,
-            // ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-            //   children: [
-            //     ElevatedButton(
-            //         child: Row(
-            //           children: [
-            //              Image.asset("assets/images/google-logo.png",height: 20,width: 40,),
-            //               SizedBox(width: 5,),
-            //             Text("Goolge",
-            //                 style: TextStyle(
-            //                     fontSize: 17,
-            //                     fontWeight: FontWeight.w600,
-            //                     color: Colors.black)),
-                               
-                               
-            //           ],
-            //         ),
-            //         onPressed: () {},
-            //         style: ButtonStyle(
-            //           backgroundColor: MaterialStateProperty.all(
-            //               Theme.of(context).scaffoldBackgroundColor),
-            //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            //               RoundedRectangleBorder(
-            //                   borderRadius: BorderRadius.circular(15),
-            //                   side: BorderSide(
-            //                     color: Color(0xFFBA993A),
-            //                   ))),
-            //         )),
-            //     ElevatedButton(
-            //         child: Row(
-            //           children: [
-            //                Image.asset("assets/images/facebook-logo.png",height: 20,width: 40,color: Colors.blue,),
-            //               SizedBox(width: 5,),
-            //             Text("facebook",
-            //                 style: TextStyle(
-            //                     fontSize: 17,
-            //                     fontWeight: FontWeight.w600,
-            //                     color: Colors.black)),
-            //           ],
-            //         ),
-            //         onPressed: () {},
-            //         style: ButtonStyle(
-            //           backgroundColor: MaterialStateProperty.all(
-            //               Theme.of(context).scaffoldBackgroundColor),
-            //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            //               RoundedRectangleBorder(
-            //                   borderRadius: BorderRadius.circular(15),
-            //                   side: BorderSide(
-            //                     color: Color(0xFFBA993A),
-            //                   ))),
-            //         )),
-            //   ],
-            // ),
-            // SizedBox(
-            //   height: 20,
-            // ),
-    //         Row(
-    //   mainAxisAlignment: MainAxisAlignment.center,
-    //   children: <Widget>[
-    //     Text(
-    //       "Don't have an Account?" ,
-    //       style: TextStyle(fontSize: 15.0,fontFamily: "KiwiMaru",color: Colors.black,
-    //     ),),
-    //      SizedBox(
-    //           width: 30,
-    //         ),
-    //     GestureDetector(
-    //       onTap: (){},
-    //       child: Text(
-    //         "Sign Up",
-    //         style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,fontFamily: "KiwiMaru",color: Colors.cyan[900]),
-    //       ),
-    //     )
-    //   ],
-    // )
+                  //       Padding(
+                  //         padding: const EdgeInsets.only(top:70.0),
+                  //         child: Row(
+                  //   children: [
+                  //     Expanded(
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.symmetric(
+                  //             horizontal: 10,
+                  //           ),
+                  //           child: Divider(
+                  //             thickness: 1.5,
+                  //             color: Colors.grey,
+                  //           ),
+                  //         ),
+                  //     ),
+                  //     Text(
+                  //         "Or continue with",
+                  //         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                  //     ),
+                  //     Expanded(
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.symmetric(
+                  //             horizontal: 10,
+                  //           ),
+                  //           child: Divider(
+                  //             thickness: 1.5,
+                  //             color: Colors.grey,
+                  //           ),
+                  //         ),
+                  //     ),
+                  //   ],
+                  // ),
+                  //       ),
+                  // SizedBox(
+                  //   height: 30,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  //   children: [
+                  //     ElevatedButton(
+                  //         child: Row(
+                  //           children: [
+                  //              Image.asset("assets/images/google-logo.png",height: 20,width: 40,),
+                  //               SizedBox(width: 5,),
+                  //             Text("Goolge",
+                  //                 style: TextStyle(
+                  //                     fontSize: 17,
+                  //                     fontWeight: FontWeight.w600,
+                  //                     color: Colors.black)),
+
+                  //           ],
+                  //         ),
+                  //         onPressed: () {},
+                  //         style: ButtonStyle(
+                  //           backgroundColor: MaterialStateProperty.all(
+                  //               Theme.of(context).scaffoldBackgroundColor),
+                  //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(15),
+                  //                   side: BorderSide(
+                  //                     color: Color(0xFFBA993A),
+                  //                   ))),
+                  //         )),
+                  //     ElevatedButton(
+                  //         child: Row(
+                  //           children: [
+                  //                Image.asset("assets/images/facebook-logo.png",height: 20,width: 40,color: Colors.blue,),
+                  //               SizedBox(width: 5,),
+                  //             Text("facebook",
+                  //                 style: TextStyle(
+                  //                     fontSize: 17,
+                  //                     fontWeight: FontWeight.w600,
+                  //                     color: Colors.black)),
+                  //           ],
+                  //         ),
+                  //         onPressed: () {},
+                  //         style: ButtonStyle(
+                  //           backgroundColor: MaterialStateProperty.all(
+                  //               Theme.of(context).scaffoldBackgroundColor),
+                  //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(15),
+                  //                   side: BorderSide(
+                  //                     color: Color(0xFFBA993A),
+                  //                   ))),
+                  //         )),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  //         Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: <Widget>[
+                  //     Text(
+                  //       "Don't have an Account?" ,
+                  //       style: TextStyle(fontSize: 15.0,fontFamily: "KiwiMaru",color: Colors.black,
+                  //     ),),
+                  //      SizedBox(
+                  //           width: 30,
+                  //         ),
+                  //     GestureDetector(
+                  //       onTap: (){},
+                  //       child: Text(
+                  //         "Sign Up",
+                  //         style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,fontFamily: "KiwiMaru",color: Colors.cyan[900]),
+                  //       ),
+                  //     )
+                  //   ],
+                  // )
                 ],
               ),
             )

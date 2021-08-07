@@ -21,7 +21,7 @@ class FeedsPage extends StatelessWidget {
     final productProvider = Provider.of<Products>(context);
     List<Product> productsList = productProvider.products;
     if (popular == "popular") {
-      productsList = productProvider.PopularProducts;
+      productsList = productProvider.popularProducts;
 
       print(productsList);
     } else {

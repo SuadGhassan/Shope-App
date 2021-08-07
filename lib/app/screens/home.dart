@@ -53,8 +53,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final providerPopularProducts = Provider.of<Products>(context);
-    final popularProducts = providerPopularProducts.PopularProducts;
+    final productData = Provider.of<Products>(context);
+    productData.fetchProducts();
+    final popularProducts = productData.popularProducts;
     print("product number: ${popularProducts.length}");
     return Container(
       child: Center(

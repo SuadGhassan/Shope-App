@@ -40,6 +40,7 @@ class _ProductCardState extends State<ProductCard> {
                     borderRadius: BorderRadius.circular(2),
                     child: Container(
                       width: double.infinity,
+                      height:MediaQuery.of(context).size.height*0.3,
                       constraints: BoxConstraints(
                         minHeight: 100,
                         maxHeight: MediaQuery.of(context).size.height * 0.3,

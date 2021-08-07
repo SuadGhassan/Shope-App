@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shop_app/services/show_dialog.dart';
+import 'package:uuid/uuid.dart';
 
 class UploadProduct extends StatefulWidget {
   static const routeName = "/UploadProduct";
@@ -25,12 +30,18 @@ class _UploadProductState extends State<UploadProduct> {
   final TextEditingController _brandController = TextEditingController();
   String? _categoryValue;
   String? _brandValue;
-
+  final ShowDialog _showDialogObj = ShowDialog();
+  bool _isLoading = false;
   File? _pickedImage;
-
-  void _trySubmit() {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? url;
+  var uuid = Uuid();
+  void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
+    var date = DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
     if (isValid) {
       _formKey.currentState!.save();
       print(_productTitle);
@@ -40,6 +51,50 @@ class _UploadProductState extends State<UploadProduct> {
       print(_productDescription);
       print(_productQuantity);
       // Use those values to send our auth request ...
+
+      try {
+        if (_pickedImage == null) {
+          _showDialogObj.authErrorHandler("please pick an image", context);
+        } else {
+          setState(() {
+            _isLoading = true;
+          });
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child("productImage")
+              .child(_productTitle + ".jpg");
+          await ref.putFile(
+              _pickedImage!); //here will save image url in the firebaseStorage
+          url = await ref.getDownloadURL();
+
+          final User? user = _auth.currentUser;
+          final _uid = user!.uid;
+          final _productId = uuid.v4();
+          await FirebaseFirestore.instance
+              .collection("products")
+              .doc(_productId)
+              .set({
+            "productId": _productId,
+            "productTitle": _productTitle,
+            "productPrice": _productPrice,
+            "productCategory": _productCategory,
+            "productImage": url,
+            "productBrand": _productBrand,
+            "productDescription": _productDescription,
+            "productQuantity": _productQuantity,
+            "userId": _uid,
+            "createAt": Timestamp
+                .now(), // Timestamp is provided by firestore to take the time when the user login
+          }); //and here will get the url and assign it to the url var
+        }
+      } catch (error) {
+        _showDialogObj.authErrorHandler("$error", context);
+        print("Error occured $error");
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -96,9 +151,15 @@ class _UploadProductState extends State<UploadProduct> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: Text('Upload',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center),
+                  child: _isLoading
+                      ? Center(
+                          child: Container(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator()))
+                      : Text('Upload',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center),
                 ),
                 GradientIcon(
                   icon: Entypo.upload,
@@ -120,11 +181,10 @@ class _UploadProductState extends State<UploadProduct> {
           ),
         ),
       ),
-     
       body: SingleChildScrollView(
           child: Column(
         children: [
-           SizedBox(height:5),
+          SizedBox(height: 5),
           Center(
             child: Card(
               margin: EdgeInsets.all(15),
@@ -342,10 +402,13 @@ class _UploadProductState extends State<UploadProduct> {
                                   return null;
                                 },
                                 decoration: InputDecoration(labelText: "Brand"),
-                                onSaved:(value){_productBrand=value!;},
+                                onSaved: (value) {
+                                  _productBrand = value!;
+                                },
                               )),
                             )),
-                            DropdownButton(items: [
+                            DropdownButton(
+                              items: [
                                 DropdownMenuItem<String>(
                                   child: Text('Brandless'),
                                   value: 'Brandless',
@@ -379,41 +442,41 @@ class _UploadProductState extends State<UploadProduct> {
                                   value: 'Huawei',
                                 ),
                               ],
-                               onChanged: (String? value) {
+                              onChanged: (String? value) {
                                 setState(() {
                                   _brandValue = value;
                                   _brandController.text = value!;
-                                 
                                 });
                               },
-                              hint:Text("Brand"),
+                              hint: Text("Brand"),
                               value: _brandValue,
-                              ),
+                            ),
                           ],
                         ),
                         SizedBox(height: 15),
                         TextFormField(
                           key: ValueKey("Description"),
-                           validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'product description is required';
-                              }
-                              return null;
-                            },
-                            
-                            maxLines: 10,
-                            textCapitalization: TextCapitalization.sentences,
-                               decoration: InputDecoration(
-                              //  counterText: charLength.toString(),
-                              labelText: 'Description',
-                              hintText: 'Product description',
-                              border: OutlineInputBorder(),
-                            ),
-                            onSaved: (value) {
-                              _productDescription = value!;
-                            },
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'product description is required';
+                            }
+                            return null;
+                          },
+                          maxLines: 10,
+                          textCapitalization: TextCapitalization.sentences,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            //  counterText: charLength.toString(),
+                            labelText: 'Description',
+                            hintText: 'Product description',
+                            border: OutlineInputBorder(),
+                          ),
+                          onSaved: (value) {
+                            _productDescription = value!;
+                          },
                         ),
-                        Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Expanded(
@@ -438,7 +501,8 @@ class _UploadProductState extends State<UploadProduct> {
                                 ),
                               ),
                             ),
-                          ],)
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -447,9 +511,9 @@ class _UploadProductState extends State<UploadProduct> {
             ),
           ),
           SizedBox(
-              height: 50,)
+            height: 50,
+          )
         ],
-         
       )),
     );
   }

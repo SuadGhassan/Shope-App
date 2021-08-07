@@ -3,7 +3,7 @@ import 'package:shop_app/app/screens/cart.dart';
 import 'package:shop_app/app/screens/feeds.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/const/my_icons.dart';
-import 'package:shop_app/widgets/upload_new_product.dart';
+import 'package:shop_app/app/screens/upload_new_product.dart';
 
 class BackLayer extends StatelessWidget {
    BackLayer({Key? key}) : super(key: key);

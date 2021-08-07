@@ -1,8 +1,79 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/Product.dart';
-import 'package:shop_app/widgets/popular_products.dart';
 
 class Products with ChangeNotifier {
+  List<Product> _products = [];
+
+  //Get All the Products
+  List<Product> get products {
+    return [..._products];
+  }
+
+  Future<void> fetchProducts() async {
+    await FirebaseFirestore.instance
+        .collection("products")
+        .get()
+        .then((QuerySnapshot productSnapshot) {
+          _products = [];
+      productSnapshot.docs.forEach((element) { //for loop
+        _products.insert(
+            0,
+            Product(
+                id: element.get("productId"),
+                title: element.get("productTitle"),
+                desc:
+                    element.get("productDescription"),
+                price:double.parse(element.get("productPrice")),
+                imageUrl:
+                    element.get("productImage"),
+                brand:element.get("productBrand"),
+                productCategoryName: element.get("productCategory"),
+                quantity: int.parse(element.get("productQuantity")),
+                isPopular: true));
+      });
+    });
+  }
+
+  //Get the popular products
+  List<Product> get popularProducts {
+    return _products.where((element) => element.isPopular).toList();
+  }
+
+//find by product id
+
+  Product findById(String productId) {
+    return _products.firstWhere((element) => element.id == productId);
+  }
+
+  //return the products belong to a specific category
+  List<Product> findProdByCatName(String categoryName) {
+    print('categoryName $categoryName');
+    List<Product> _categoryList = _products
+        .where((element) => element.productCategoryName
+            .toLowerCase()
+            .contains(categoryName.toLowerCase()))
+        .toList();
+    return _categoryList;
+  }
+
+  List<Product> findProductsForBrand(String? brandName) {
+    List<Product> _productsBrand = _products
+        .where((element) =>
+            element.brand.toLowerCase().contains(brandName!.toLowerCase()))
+        .toList();
+    return _productsBrand;
+  }
+
+  List<Product> searchQuery(String? searchText) {
+    List<Product> _searchList = _products
+        .where((element) =>
+            element.title.toLowerCase().contains(searchText!.toLowerCase()))
+        .toList();
+    return _searchList;
+  }
+}
+/*
   List<Product> _products = [
     Product(
         id: 'Samsung1',
@@ -584,46 +655,4 @@ class Products with ChangeNotifier {
         quantity: 951,
         isPopular: true),
   ];
-
-  //Get All the Products
-  List<Product> get products {
-    return [..._products];
-  }
-
-  //Get the popular products
-  List<Product> get PopularProducts {
-    return _products.where((element) => element.isPopular).toList();
-  }
-
-//find by product id
-
-Product findById(String productId){
-  return _products.firstWhere((element) => element.id==productId);
-}
-  //return the products belong to a specific category
-  List<Product> findProdByCatName(String categoryName) {
-    print('categoryName $categoryName');
-    List<Product> _categoryList = _products
-        .where((element) => element.productCategoryName
-            .toLowerCase()
-            .contains(categoryName.toLowerCase()))
-        .toList();
-    return _categoryList;
-  }
-
-  List<Product> findProductsForBrand(String? brandName) {
-    List<Product> _productsBrand = _products
-        .where((element) =>
-            element.brand.toLowerCase().contains(brandName!.toLowerCase()))
-        .toList();
-    return _productsBrand;
-  }
-   List<Product> searchQuery(String? searchText) {
-    List<Product> _searchList = _products
-        .where((element) =>
-            element.title.toLowerCase().contains(searchText!.toLowerCase()))
-        .toList();
-    return _searchList;
-  }
-  
-}
+ */
