@@ -31,69 +31,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final productList = productData.products;
     final favProvider=Provider.of<WishListProvider>(context);
     return Scaffold(
-      appBar: AppBar(
-          title: Text("Product Details",
-              style: TextStyle(
-                  color: themeState.darkTheme ? Colors.white70 : Colors.black)),
-          elevation: 10,
-          flexibleSpace: Container(
-              padding: const EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                Colors.teal,
-                Colors.teal.withOpacity(0.9),
-              ]))),
-          actions: <Widget>[
-            Consumer<WishListProvider>(
-              builder: (_,favs,child)=>Badge(
-                badgeColor:Color(0xFFBA993A),
-                toAnimate: true,
-                position:BadgePosition.topEnd(top:5,end:3),
-                animationType: BadgeAnimationType.slide,
-                badgeContent: Text(favs.getWishListItems.length.toString(),style:TextStyle(color:Colors.white)),
-                
-                child: IconButton(
-                  icon: Icon(
-                    MyAppIcons.wishlist,
-                    color: themeState.darkTheme ? Colors.white70 : Colors.cyan[900],
-                  ),
-                  onPressed: () {
-                    
-                    Navigator.of(context).pushNamed(WishlistPage.routeName);
-                  },
-                ),
-              ),
-            ),
-            Consumer<CartProvider>(
-              builder: (_,cart,child)=> Badge(
-                 badgeColor:Color(0xFFBA993A),
-                toAnimate: true,
-                position:BadgePosition.topEnd(top:5,end:13),
-                animationType: BadgeAnimationType.slide,
-                badgeContent: Text(cart.getCartItems.length.toString(),style:TextStyle(color:Colors.white)),
-                child: Padding(
-                  padding: const EdgeInsets.only(right:8.0),
-                  child: IconButton(
-                    icon: Icon(
-                      MyAppIcons.cart,
-                      color: themeState.darkTheme ? Colors.white70 : Colors.cyan[900],
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(CartPage.routeName);
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ]),
       body: Stack(children: [
+       
         Container(
           foregroundDecoration: BoxDecoration(color: Colors.black12),
-          height: MediaQuery.of(context).size.height * 0.35,
+          height: MediaQuery.of(context).size.height * 0.45,
           width: double.infinity,
           child: Image.network(
             productDetails.imageUrl,
-            // fit: BoxFit.cover,
+            fit: BoxFit.contain,
           ),
         ),
         SingleChildScrollView(
@@ -171,7 +117,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             height: 8,
                           ),
                           Text(
-                            '${productDetails.price} SR',
+                            '${productDetails.price} USD',
                             style: TextStyle(
                                 color: themeState.darkTheme
                                     ? Theme.of(context).disabledColor
@@ -307,6 +253,66 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ],
           ),
         ),
+         Positioned(
+          top: 0,
+          left: 0,
+          right:0,
+          child: AppBar(
+        backgroundColor:Colors.transparent,
+          title: Text("Product Details",
+              style: TextStyle(
+                  color: themeState.darkTheme ? Colors.white70 : Colors.black)),
+          // elevation: 10,
+          // flexibleSpace: Container(
+          //     padding: const EdgeInsets.all(5.0),
+          //     decoration: BoxDecoration(
+          //         gradient: LinearGradient(colors: [
+          //       Colors.teal,
+          //       Colors.teal.withOpacity(0.9),
+          //     ]))),
+          actions: <Widget>[
+            Consumer<WishListProvider>(
+              builder: (_,favs,child)=>Badge(
+                badgeColor:Color(0xFFBA993A),
+                toAnimate: true,
+                position:BadgePosition.topEnd(top:5,end:3),
+                animationType: BadgeAnimationType.slide,
+                badgeContent: Text(favs.getWishListItems.length.toString(),style:TextStyle(color:Colors.white)),
+                
+                child: IconButton(
+                  icon: Icon(
+                    MyAppIcons.wishlist,
+                    color: themeState.darkTheme ? Colors.white70 : Colors.cyan[900],
+                  ),
+                  onPressed: () {
+                    
+                    Navigator.of(context).pushNamed(WishlistPage.routeName);
+                  },
+                ),
+              ),
+            ),
+            Consumer<CartProvider>(
+              builder: (_,cart,child)=> Badge(
+                 badgeColor:Color(0xFFBA993A),
+                toAnimate: true,
+                position:BadgePosition.topEnd(top:5,end:13),
+                animationType: BadgeAnimationType.slide,
+                badgeContent: Text(cart.getCartItems.length.toString(),style:TextStyle(color:Colors.white)),
+                child: Padding(
+                  padding: const EdgeInsets.only(right:8.0),
+                  child: IconButton(
+                    icon: Icon(
+                      MyAppIcons.cart,
+                      color: themeState.darkTheme ? Colors.white70 : Colors.cyan[900],
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(CartPage.routeName);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ]),),
         Align(
             alignment: Alignment.bottomCenter,
             child: Row(children: [

@@ -82,7 +82,7 @@ class _FullCartScreenState extends State<FullCartScreen> {
                       SizedBox(
                         width: 2,
                       ),
-                      Text("${cartAttr.price} SR"),
+                      Text("${cartAttr.price} USD"),
                     ],
                   ),
                   SizedBox(
@@ -94,7 +94,7 @@ class _FullCartScreenState extends State<FullCartScreen> {
                       SizedBox(
                         width: 2,
                       ),
-                      Text("${subTotal.toStringAsFixed(2)} SR"),
+                      Text("${subTotal.toStringAsFixed(2)} USD"),
                     ],
                   ),
                   Flexible(

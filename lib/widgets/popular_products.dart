@@ -78,7 +78,7 @@ final favProvider = Provider.of<WishListProvider>(context);
                         padding: EdgeInsets.all(10.0),
                         color: Theme.of(context).backgroundColor,
                         child: Text(
-                          '${productBrandAttributes.price} SR',
+                          '${productBrandAttributes.price} USD',
                           style: TextStyle(
                             color: Theme.of(context).textSelectionColor,
                           ),

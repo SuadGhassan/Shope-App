@@ -7,8 +7,6 @@ import 'package:shop_app/app/screens/auth/sign_up.dart';
 import 'package:shop_app/app/screens/cart.dart';
 import 'package:shop_app/app/screens/feeds.dart';
 import 'package:shop_app/app/screens/home.dart';
-import 'package:shop_app/app/screens/landing_page.dart';
-import 'package:shop_app/app/screens/Page_view_screens.dart';
 import 'package:shop_app/app/screens/user_state.dart';
 import 'package:shop_app/app/screens/wishlist.dart';
 import 'package:shop_app/bottom_navgation_bar.dart';
@@ -93,6 +91,7 @@ class _MyAppState extends State<MyApp> {
           //consumer as same as provider but this for only one widget
           child: Consumer<DarkThemeProvider>(builder: (context, themeData, child) {
             return MaterialApp(
+               debugShowCheckedModeBanner: false,
               title: ' Shop App',
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
               home: UserState(),

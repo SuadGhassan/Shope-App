@@ -216,7 +216,7 @@ class ContentSpace extends StatelessWidget {
         productBrandList.add(productsBrandData.products[i]);
       }
     }
-    print("Product Brand ${productBrandList[0].imageUrl}");
+    // print("Product Brand ${productBrandList[0].imageUrl}");
     print("brand $brand");
     return Expanded(
       child: Padding(
@@ -224,7 +224,7 @@ class ContentSpace extends StatelessWidget {
         child: MediaQuery.removePadding(
           removeTop: true,
           context: context,
-          child: ListView.builder(
+          child:productBrandList.isEmpty?Text("No products related to this brand",textAlign:TextAlign.center,style:TextStyle(fontWeight:FontWeight.w600,fontSize: 25,color:Colors.cyan[900])):ListView.builder(
             itemCount: productBrandList.length,
             itemBuilder: (BuildContext context, int index) =>
                 ChangeNotifierProvider.value(

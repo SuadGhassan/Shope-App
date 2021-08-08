@@ -11,10 +11,17 @@ import 'package:shop_app/provider/dart_theme_provider.dart';
 import 'package:shop_app/provider/products.dart';
 import 'package:shop_app/provider/wishlist_provider.dart';
 
-class FeedsPage extends StatelessWidget {
+class FeedsPage extends StatefulWidget {
   static const routeName = '/FeedsScreen';
-  // const FeedsPage({Key? key}) : super(key: key);
 
+  @override
+  State<FeedsPage> createState() => _FeedsPageState();
+}
+
+class _FeedsPageState extends State<FeedsPage> {
+  Future<void> _getProductOnRefresh()async {
+    await Provider.of<Products>(context,listen: false).fetchProducts();
+  }
   @override
   Widget build(BuildContext context) {
     final popular = ModalRoute.of(context)!.settings.arguments;
@@ -89,15 +96,18 @@ class FeedsPage extends StatelessWidget {
               ),
             ),
           ]),
-      body: GridView.count(
-        childAspectRatio: 300 / 600,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 5,
-        crossAxisCount: 2,
-        children: List.generate(
-            productsList.length,
-            (index) => ChangeNotifierProvider.value(
-                value: productsList[index], child: ProductCard())),
+      body: RefreshIndicator(
+        onRefresh: _getProductOnRefresh,
+        child: GridView.count(
+          childAspectRatio: 300 / 600,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 5,
+          crossAxisCount: 2,
+          children: List.generate(
+              productsList.length,
+              (index) => ChangeNotifierProvider.value(
+                  value: productsList[index], child: ProductCard())),
+        ),
       ),
     );
   }
